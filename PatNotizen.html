@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script type="text/javascript">
+            var scriptlines = "";
+            var codeLength = 0;
+            var tPos = 0; // tokeniser pointer position
+            var endResult = "";
+
+            function getToken()
+            {
+              token = "";
+              var curchar = '';
+              if(tPos >= codeLength)
+                    return "ENDOFCODE";
+              while(tPos < codeLength)
+                {
+                  curchar = scriptlines.charAt(tPos);
+                  if(curchar === '\n') // end of statement
+                  {
+                    if(token === "")
+                    {
+                      tPos++;
+                      return "ENDSTATEMENT"; // statement end
+                    }
+                    else
+                      return token;
+                  }
+                  else if(curchar === ';') // end of info
+                  {
+                    if(token === "")
+                    {
+                      tPos++;
+                      return "ENDINFO"; // statement end
+                    }
+                    else
+                      return token;
+                  }
+                  else if(curchar === ' ' )
+                  {
+                    tPos++;
+                    if(token === "")
+                      continue;
+                    else{
+                      return token;
+                    }
+                  }
+                  else
+                  {
+                    token += curchar;
+                    tPos++
+                  }
+                }
+                return token;
+            }
+
+            function getInfo()
+            {
+              retinfo = "";
+              while((ctoken = getToken()) !== "ENDINFO")
+              {
+                if(ctoken === "ENDOFCODE")
+                  throw new Error("in Info ENDOFCODE war nicht erwartet.");
+
+                if(ctoken === "ENDSTATEMENT")
+                    return [retinfo, "LI"];
+
+                retinfo += ctoken + " ";
+              }
+              return [retinfo, "NLI"]; // not last info
+            }
+            
+            function doPatient(geschlecht)
+            {
+              endResult += "<div class=\"card\"><div class=\"card-header\">";
+              var ctoken = "";
+              // patient Name;Vorname;Geburtsdatum \n
+              pname = getInfo();
+              pvorname = getInfo();
+              pgeburtsdatum = getInfo();
+              if(pname[1] == "LI" || pvorname[1] == "LI" || pgeburtsdatum[1] == "NLI")
+                throw new Error("Infos in Header sind nicht korrekt angegeben.");
+              if(!isDatum(pgeburtsdatum[0]))
+                throw new Error("Geburtsatum nicht korrekt.");              
+                endResult += geschlecht + " " + pname[0].trim() + ", " + pvorname[0].trim() + ", " + pgeburtsdatum[0].trim() + "</div>";
+              
+
+              endResult += "<div class=\"card-body\"><ul>";
+
+              while((ctoken = getToken()).toLowerCase() !== "ende")
+              {
+                if(ctoken === "ENDSTATEMENT")
+                  continue; // remove the empty statements
+
+                if(ctoken === "ENDOFCODE") // patient should end with Ende
+                  throw new Error("Patient endet mit Ende.");
+
+                var infopoint = "&#11212;";
+                if(ctoken.toLowerCase() == "notizen")
+                  infopoint = "&#9634;";
+                
+                endResult += "<li>" + ctoken + ": ";
+                while(secinfo = getInfo())
+                {
+                  endResult +=  infopoint + secinfo[0] + "&nbsp;&nbsp;&nbsp;";
+                  if(secinfo[1] === "LI")
+                    break;
+                }
+                endResult += "</li>"    
+              }
+              endResult += "</ul></div></div>";
+            }
+
+            function isDatum(dat)
+            {
+              return true;
+            }
+            function PIparse()
+            {
+              try
+              {
+                scriptlines = document.getElementById("commLine").value;
+                tPos = 0;
+                codeLength = scriptlines.length;
+                endResult = "";
+                if(codeLength === 0) // if the code is empty end the program
+                  throw new Error("empty code")// return;
+                
+                var ctoken = ""  ;
+                while((ctoken = getToken()) !== "ENDOFCODE")
+                {
+                  if(ctoken === "ENDSTATEMENT")
+                    continue; // remove the empty statements
+                  switch(ctoken.toLowerCase())
+                  {
+                    case "patient":
+                      doPatient("Herr");
+                      break;
+                    case "patientin":
+                      doPatient("Frau");
+                      break;
+                    default:
+                      throw new Error("PIparse not defined."+ctoken);
+                      
+                  }
+                }
+              } catch (e) {
+                alert(e.name + e.lineNumber + e.message);
+              } 
+              document.getElementById("PInfos").innerHTML = endResult;
+            }
+
+        </script>
+        <style>
+            body{
+                font-family: 'Lucida Sans';
+                font-size: 13pt;
+                line-height: 1.5;
+                width: 210mm;
+            }
+            ul{
+              line-height: 2;
+            }
+            .card{
+                border-radius: 2mm;
+                border-width: 0.2mm;
+                border-style: solid;
+                border-color: 999999;
+                margin: 3mm;
+                width: 100%;
+            }
+            .card-header{
+                border-radius: 2mm;
+                background-color: #CCCCCC;
+                margin: 0mm;
+                padding: 2mm;
+            }
+            .card-body{
+                padding: 2mm;
+            }
+
+            @media print {
+                @page{
+                    size: 210mm;
+                }
+                header,
+                footer {
+                    display: none;
+                }
+                .dontprint{
+                  display: none;
+                }
+                body * {
+                    font-family: 'Lucida Sans';
+                    font-size: 13pt;
+                    line-height: 1.5;
+                    visibility: hidden;
+                }
+                #PInfos, #PInfos * {
+                    visibility: visible;
+                }
+                .card{
+                    break-inside: avoid;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <table style="height: 60mm; width: 100%;" class="dontprint"><tr>
+        <td style="width: 90%; height: 100%;"><textarea wrap="soft" style="height: 100%; width: 98%; resize: none; padding: 0mm;" id="commLine"></textarea></td>
+        <td style="width: 10%; height: 100%;"><input type="button" style="height: 100%; width: 98%; padding: 0mm;" onmousedown="PIparse()" value="Parse" /></td>
+        </tr></table>
+        <br>
+        
+        <div id="PInfos">
+          <div class="card">
+            <div class="card-header">&#11212;Olga, Hans 10.05.1945 (80J)</div>
+            <div class="card-body">kmbkmfkbmkdkmlfbvmkvndklsd <br>lvmklvfmkfvkmlfdkmlfvkmlfvkmldfkbnbn m cv,mv</div>
+          </div>
+        </div>
+    </body>
+</html>
