@@ -57,8 +57,15 @@
             function getInfo()
             {
               retinfo = "";
+              infoProperty = ""  
               while((ctoken = getToken()) !== "ENDINFO")
               {
+                if(ctoken === "STRICH" || ctoken === "FETT")
+                {
+                    if(retinfo === "") // if this token is the first token in an info it will be considered a property
+                        infoProperty = ctoken;
+                        continue;
+                }
                 if(ctoken === "ENDOFCODE")
                   throw new Error("in Info ENDOFCODE war nicht erwartet.");
 
@@ -67,7 +74,7 @@
 
                 retinfo += ctoken + " ";
               }
-              return [retinfo, "NLI"]; // not last info
+              return [retinfo, "NLI", infoProperty]; // not last info
             }
             
             function doPatient(geschlecht)
@@ -102,7 +109,18 @@
                 endResult += "<li>" + ctoken + ": ";
                 while(secinfo = getInfo())
                 {
-                  endResult +=  infopoint + secinfo[0] + "&nbsp;&nbsp;&nbsp;";
+                  switch(secinfo[2])
+                    {
+                        case "STRICH":
+                            endResult +=  "<s>" + infopoint + secinfo[0] + "</s>" + "&nbsp;&nbsp;&nbsp;";
+                            break;
+                        case "FETT":
+                            endResult +=  "<b>" + infopoint + secinfo[0] + "</b>" + "&nbsp;&nbsp;&nbsp;";
+                            break;
+                        default:
+                            endResult +=  infopoint + secinfo[0] + "&nbsp;&nbsp;&nbsp;";
+                    }
+                  
                   if(secinfo[1] === "LI")
                     break;
                 }
@@ -217,4 +235,5 @@
     </body>
 
 </html>
+
 
