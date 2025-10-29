@@ -57,9 +57,10 @@
             function getInfo()
             {
               retinfo = "";
-              infoProperty = ""  
+                
               while((ctoken = getToken()) !== "ENDINFO")
               {
+                infoProperty = "";  
                 if(ctoken === "STRICH" || ctoken === "FETT")
                 {
                     if(retinfo === "") // if this token is the first token in an info it will be considered a property
@@ -235,6 +236,7 @@
     </body>
 
 </html>
+
 
 
 
