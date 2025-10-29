@@ -59,14 +59,15 @@
               retinfo = "";
               infoProperty = "";    
               while((ctoken = getToken()) !== "ENDINFO")
-              {
-                  alert(ctoken);
-                
+              {                
                 if(ctoken === "STRICH" || ctoken === "FETT")
                 {
                     if(retinfo === "") // if this token is the first token in an info it will be considered a property
+                    {
                         infoProperty = ctoken;
+                        alert(inforProperty);
                         continue;
+                    }
                 }
                 if(ctoken === "ENDOFCODE")
                   throw new Error("in Info ENDOFCODE war nicht erwartet.");
@@ -237,6 +238,7 @@
     </body>
 
 </html>
+
 
 
 
