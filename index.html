@@ -57,11 +57,11 @@
             function getInfo()
             {
               retinfo = "";
-                
+              infoProperty = "";    
               while((ctoken = getToken()) !== "ENDINFO")
               {
                   alert(ctoken);
-                infoProperty = "";  
+                
                 if(ctoken === "STRICH" || ctoken === "FETT")
                 {
                     if(retinfo === "") // if this token is the first token in an info it will be considered a property
@@ -114,7 +114,7 @@
                   switch(secinfo[2])
                     {
                         case "STRICH":
-                            endResult +=  "<del>" + infopoint + secinfo[0] + "</del>" + "&nbsp;&nbsp;&nbsp;";
+                            endResult +=  "<h1>" + infopoint + secinfo[0] + "</h1>" + "&nbsp;&nbsp;&nbsp;";
                             break;
                         case "FETT":
                             endResult +=  "<b>" + infopoint + secinfo[0] + "</b>" + "&nbsp;&nbsp;&nbsp;";
@@ -237,6 +237,7 @@
     </body>
 
 </html>
+
 
 
 
