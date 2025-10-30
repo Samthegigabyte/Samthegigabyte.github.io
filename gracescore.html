@@ -464,9 +464,15 @@
                 break;
             case 7:
                 stemiv = document.getElementById("val").value === "y" ? true : false;
-                document.getElementById("ques").style.visibility = "hidden";
-                document.getElementById("val").style.visibility = "hidden";
-                grace = agev.toString()+ pulsv.toString()+sbpv.toString()+ creav.toString()+  killipv.toString()+  cardiacv.toString()+ enzymev.toString()+ stemiv.toString();
+                document.getElementById("val").value = "";
+                grace = "<b>Alter: </b>"+agev.toString() +"</br>";
+                grace += "<b>Puls: </b>"+ pulsv.toString()+"</br>";
+                grace += "<b>Systolicher Blutdruck: </b>"+sbpv.toString()+"</br>";
+                grace += "<b>Kreatinin: </b>"+ creav.toString()+"</br>";
+                grace += "<b>Killip: </b>"+  killipv.toString()+"</br>";
+                grace += "<b>Herzstillstand: </b>"+  cardiacv.toString()+"</br>";
+                grace += "<b>Trop: </b>"+ enzymev.toString()+"</br>";
+                grace += "<b>St-Abweichungen: </b>"+ stemiv.toString()+"</br>";
                 grace += "<br />Grace Score: Death/MI im Krankenhaus ";
                 grace += "<b>" + (CalculateAdmissionToInHospitalDeath(agev, pulsv, sbpv, creav,  killipv,  cardiacv, enzymev, stemiv)*100).toFixed(1)+"%</b>";
                 grace += ", Death/MI nach 6 Monaten ";
@@ -474,6 +480,7 @@
                 grace += ", Death/MI nach ein Jahe ";
                 grace += "<b>"+(CalculateOneYearDeath(agev, pulsv, sbpv, creav,  killipv,  cardiacv, enzymev, stemiv)*100).toFixed(1)+"%</b>";
                 document.getElementById("result").innerHTML = grace;
+                step = 0;
                 break;
         }
 
